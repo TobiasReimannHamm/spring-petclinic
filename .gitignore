@@ -49,3 +49,7 @@ out/
 _site/
 *.css
 !petclinic.css
+
+### Cypress and Cucumber ###
+node_modules/
+logs/

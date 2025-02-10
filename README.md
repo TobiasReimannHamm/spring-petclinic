@@ -160,3 +160,105 @@ For pull requests, editor preferences are available in the [editor config](.edit
 ## License
 
 The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+
+## Install Cypress
+To install Cypress: 
+
+npm init
+npm install cypress
+npx cypress open and create folder structure
+npm install --save-dev cypress-cucumber-preprocessor
+
+plugins/Index.JS file: add the following:
+const cucumber = require('cypress-cucumber-preprocessor').default 
+module.exports = (on, config) => {
+  on('file:preprocessor', cucumber())
+}
+
+.gitignore:
+node_modules/
+logs/
+
+Within the package.json file, add the following configuration:
+"cypress-cucumber-preprocessor": {"nonGlobalStepDefinitions": true } is wrong.
+Use instad:
+{
+  "name": "",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^13.15.1",
+    "cypress-cucumber-preprocessor": "^4.3.1"
+  },
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": false,
+    "step_definitions": "cypress/e2e/tests"
+  }
+}
+
+Install Loader: 
+npm install --save-dev cypress-cucumber-preprocessor @cypress/webpack-preprocessor
+
+Cypress.config.js changes:
+
+const { defineConfig } = require("cypress");
+const webpack = require("@cypress/webpack-preprocessor");
+const cucumber = require("cypress-cucumber-preprocessor").default;
+
+module.exports = defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      const options = {
+        webpackOptions: require("./webpack.config"),
+        watchOptions: {},
+      };
+
+      on("file:preprocessor", webpack(options));
+      on("file:preprocessor", cucumber());
+    },
+    baseUrl: "http://localhost:8080/",
+    failOnStatusCode: false,
+    specPattern: [
+      "cypress/e2e/pages/**/*.feature",
+      "cypress/e2e/tests/**/*.cy.{js,jsx,ts,tsx}",
+    ],
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    video: false,
+  },
+});
+
+
+Put Cucumber-Features in pages
+Put Cypress-Tests in tests
+
+
+Create Webpack.config.js:
+const webpack = require('webpack')
+const path = require('path')
+
+module.exports = {
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.feature$/,
+        use: [
+          {
+            loader: 'cypress-cucumber-preprocessor/loader'
+          }
+        ]
+      }
+    ]
+  }
+}
+
+Start Tests with npx cypress open.
